@@ -1,0 +1,21 @@
+#!/bin/bash
+
+base_url="https://www.gov.uk/government/statistical-data-sets/banana-prices"
+
+curl $base_url > tmp_file
+
+last_updated=$(cat tmp_file | grep "<br>Last updated" | cut -d ' ' -f7,8,9)
+
+echo $last_updated
+
+day=$(echo "$last_updated" | cut -d ' ' -f1)
+month=$(echo "$last_updated" | cut -d ' ' -f2 | tr '[:upper:]' '[:lower:]')
+year=$(echo "$last_updated" | cut -d ' ' -f3)
+short_year=${year: -2}
+
+csv_filename="$day$month$short_year.csv"
+echo "$csv_filename"
+
+grep_pattern="$csv_filename\">"
+
+curl $(cat tmp_file | grep "$grep_pattern" | cut -d'"' -f4 ) > new.csv
